@@ -6,9 +6,9 @@ class Projectile(context: Context, startX: Float, startY: Float, screenWidth: In
     private val moveSpeed = 15f
 
     init {
-        setBitmap(R.drawable.projectile, 20, 40) // Remplacez R.drawable.projectile par l'ID de la ressource de votre projectile
+        setBitmap(R.drawable.projectile, 10, 10) // Remplacez R.drawable.projectile par l'ID de la ressource de votre projectile
         x = startX - width / 2
-        y = startY - height
+        y = 1700.0f
     }
     fun getProjectileX(): Float {
         return x

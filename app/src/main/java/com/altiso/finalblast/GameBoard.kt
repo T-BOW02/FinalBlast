@@ -1,4 +1,6 @@
 package com.altiso.finalblast
+import AlienSwarm
+import Projectile
 import android.view.MotionEvent
 import Spaceship
 import android.annotation.SuppressLint
@@ -19,8 +21,11 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
     private lateinit var backgroundBitmap: Bitmap
     private val screenHeight: Int
     private val screenWidth: Int
-
+    private val projectiles = mutableListOf<Projectile>()
     private lateinit var spaceship: Spaceship
+    private lateinit var alienSwarm: AlienSwarm
+
+    private var shootTimer = 0L
 
     init {
         holder.addCallback(this)
@@ -55,6 +60,8 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
         // Initialisation et redimensionnement de l'image d'arrière-plan
         backgroundBitmap = BitmapFactory.decodeResource(resources, R.drawable.background)
         backgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, width, height, true)
+        alienSwarm = AlienSwarm(context, screenWidth = width, screenHeight = height)
+
         // Initialisation du vaisseau spatial
 
         spaceship = Spaceship(0.0, 0.0, width, height, context)
@@ -84,15 +91,28 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
 
         // Dessinez l'arrière-plan
         canvas.drawBitmap(backgroundBitmap, 0f, 0f, paint)
-
+        alienSwarm.draw(canvas) // Dessinez les aliens
         // Dessinez le vaisseau spatial
         spaceship.draw(canvas)
-
+        for (projectile in projectiles) {
+            projectile.draw(canvas)
+        }
     }
-
+    fun fireProjectile() {
+        val projectile = spaceship.shoot()
+        projectiles.add(projectile)
+    }
     fun update() {
-        // Mettez à jour l'état de votre jeu ici
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - shootTimer >= 500) {
+            fireProjectile()
+            shootTimer = currentTime
+        }
+        alienSwarm.update() // Mettez à jour les aliens
         spaceship.update()
+        projectiles.forEach { it.update() }
+        projectiles.removeAll { it.y < 0 }
+
     }
 
     fun pause() {
