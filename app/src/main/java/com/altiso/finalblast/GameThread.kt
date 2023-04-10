@@ -1,5 +1,6 @@
 import android.graphics.Canvas
 import android.view.SurfaceHolder
+import com.altiso.finalblast.GameBoard
 
 class GameThread(private val surfaceHolder: SurfaceHolder, private val gameBoard: GameBoard) : Thread() {
     private var running = false

@@ -1,32 +1,25 @@
+package com.altiso.finalblast
+
 import android.content.Context
 import android.graphics.Canvas
-import android.view.MotionEvent
+import android.graphics.Paint
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.util.DisplayMetrics
-import android.view.WindowManager
+
 class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback {
-    val thread: GameThread
-    private val spaceship: Spaceship
-    private val alienSwarm: AlienSwarm
-    private val projectiles = mutableListOf<Projectile>()
-//    private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private var thread: GameThread
 
     init {
         holder.addCallback(this)
         thread = GameThread(holder, this)
-
-//        val displayMetrics = DisplayMetrics()
-//        windowManager.defaultDisplay.getMetrics(displayMetrics)
-//        val screenWidth = displayMetrics.widthPixels
-//        val screenHeight = displayMetrics.heightPixels
-        spaceship = Spaceship( width / 2f, height - 200f, 200, 200,context)
-        alienSwarm = AlienSwarm(context)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        thread.setRunning(true)
-        thread.start()
+        if (!thread.running) {
+            thread = GameThread(holder, this)
+            thread.running = true
+            thread.start()
+        }
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
@@ -35,7 +28,7 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
         var retry = true
         while (retry) {
             try {
-                thread.setRunning(false)
+                thread.running = false
                 thread.join()
                 retry = false
             } catch (e: InterruptedException) {
@@ -44,35 +37,58 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_DOWN) {
-            val projectile = spaceship.shoot()
-            projectiles.add(projectile)
-        }
-        return true
-    }
-    private fun updateProjectiles() {
-        val iterator = projectiles.iterator()
-        while (iterator.hasNext()) {
-            val projectile = iterator.next()
-            projectile.update()
-            if (alienSwarm.checkCollision(projectile)) {
-                iterator.remove()
-            } else if (projectile.y < 0) {
-                iterator.remove()
-            }
-        }}
-    fun update() {
-        spaceship.update()
-        alienSwarm.update()
-        projectiles.forEach { it.update() }
-        projectiles.removeAll { it.isOutOfBounds(height) || alienSwarm.checkCollision(it) }
-    }
-
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        spaceship.draw(canvas)
-        alienSwarm.draw(canvas)
-        projectiles.forEach { it.draw(canvas) }
+        val paint = Paint()
+        // Dessinez vos éléments de jeu ici en utilisant canvas et paint
+    }
+
+    fun update() {
+        // Mettez à jour l'état de votre jeu ici
+    }
+
+    fun pause() {
+        thread.running = false
+        thread.join()
+    }
+
+    fun resume() {
+        if (!thread.running) {
+            thread = GameThread(holder, this)
+            thread.running = true
+            thread.start()
+        }
+    }
+}
+
+class GameThread(private val surfaceHolder: SurfaceHolder, private val gameBoard: GameBoard) :
+    Thread() {
+    @Volatile
+    var running = false
+
+    override fun run() {
+        var canvas: Canvas?
+
+        while (running) {
+            canvas = null
+
+            try {
+                canvas = surfaceHolder.lockCanvas()
+                synchronized(surfaceHolder) {
+                    gameBoard.update()
+                    gameBoard.draw(canvas)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                if (canvas != null) {
+                    try {
+                        surfaceHolder.unlockCanvasAndPost(canvas)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
     }
 }
