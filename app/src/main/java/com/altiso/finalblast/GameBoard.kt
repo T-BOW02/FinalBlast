@@ -58,7 +58,7 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
         // Initialisation du vaisseau spatial
 
         spaceship = Spaceship(0.0, 0.0, width, height, context)
-        spaceship.y = screenHeight * 0.7f
+        spaceship.y = screenHeight * 0.75f
         spaceship.x = screenWidth * 0.4f
 
     }
