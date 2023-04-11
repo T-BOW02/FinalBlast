@@ -3,8 +3,8 @@ import android.graphics.Canvas
 import kotlin.random.Random
 
 class AlienSwarm(context: Context, private val screenWidth: Int, private val screenHeight: Int) {
-    private val aliens = mutableListOf<Alien>()
-
+    val aliens = mutableListOf<Alien>()
+    private val alienContext = context
     init {
         val numAliens = 3
 
@@ -15,7 +15,12 @@ class AlienSwarm(context: Context, private val screenWidth: Int, private val scr
             aliens.add(alien)
         }
     }
-
+    fun createNewAlien() {
+        val alien = Alien(alienContext)
+        alien.x = Random.nextFloat() * (screenWidth - alien.width)
+        alien.y = Random.nextFloat() * (screenHeight / 2 - alien.height)
+        aliens.add(alien)
+    }
     fun update() {
         aliens.forEach { alien ->
             val randomX = Random.nextFloat() * 10 - 5 // Déplacement aléatoire entre -5 et 5 sur l'axe des x

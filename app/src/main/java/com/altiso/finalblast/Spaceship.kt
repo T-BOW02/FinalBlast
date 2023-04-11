@@ -26,7 +26,7 @@ class Spaceship(x: Double, y: Double, private val screenWidth: Int, private val 
     }
 
     fun shoot(): Projectile {
-        return Projectile(context,x + width / 2, y - height, screenWidth, screenHeight)
+        return Projectile(context,x + width / 2, y, screenWidth, screenHeight)
     }
 
     override fun update() {

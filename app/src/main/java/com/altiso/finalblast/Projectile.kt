@@ -4,11 +4,11 @@ import com.altiso.finalblast.R
 
 class Projectile(context: Context, startX: Float, startY: Float, screenWidth: Int, screenHeight: Int,) : GameObject(context) {
     private val moveSpeed = 15f
-
+    var used: Boolean = false
     init {
         setBitmap(R.drawable.projectile, 10, 10) // Remplacez R.drawable.projectile par l'ID de la ressource de votre projectile
         x = startX - width / 2
-        y = 1700.0f
+        y = startY
     }
     fun getProjectileX(): Float {
         return x

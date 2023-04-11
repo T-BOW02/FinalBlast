@@ -1,17 +1,19 @@
 package com.altiso.finalblast
+import android.graphics.Color
+import Alien
 import AlienSwarm
 import Projectile
-import android.view.MotionEvent
 import Spaceship
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.DisplayMetrics
+import android.view.MotionEvent
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.WindowManager
 
 @SuppressLint("ClickableViewAccessibility")
@@ -24,7 +26,7 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
     private val projectiles = mutableListOf<Projectile>()
     private lateinit var spaceship: Spaceship
     private lateinit var alienSwarm: AlienSwarm
-
+    private var aliensKilled = 0
     private var shootTimer = 0L
 
     init {
@@ -57,12 +59,9 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
             thread.running = true
             thread.start()
         }
-        // Initialisation et redimensionnement de l'image d'arrière-plan
         backgroundBitmap = BitmapFactory.decodeResource(resources, R.drawable.background)
         backgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, width, height, true)
         alienSwarm = AlienSwarm(context, screenWidth = width, screenHeight = height)
-
-        // Initialisation du vaisseau spatial
 
         spaceship = Spaceship(0.0, 0.0, width, height, context)
         spaceship.y = screenHeight * 0.75f
@@ -89,30 +88,77 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
         super.draw(canvas)
         val paint = Paint()
 
-        // Dessinez l'arrière-plan
         canvas.drawBitmap(backgroundBitmap, 0f, 0f, paint)
-        alienSwarm.draw(canvas) // Dessinez les aliens
-        // Dessinez le vaisseau spatial
+        alienSwarm.draw(canvas)
         spaceship.draw(canvas)
-        for (projectile in projectiles) {
+
+        val projectilesToRemove = mutableListOf<Projectile>()
+        val aliensToRemove = mutableListOf<Alien>()
+
+        projectiles.forEach { projectile ->
             projectile.draw(canvas)
+
+            alienSwarm.aliens.forEach { alien ->
+                if (alien.isCollidingWith(projectile)) {
+                    projectilesToRemove.add(projectile)
+                    if (alien.lives <= 0) {
+                        aliensToRemove.add(alien)
+                    }
+                }
+            }
+            // Dessinez le leaderboard
+            paint.color = Color.WHITE
+            paint.textSize = 50f
+            canvas.drawText("Aliens tués: $aliensKilled", 20f, 60f, paint)
         }
+
+        projectiles.removeAll(projectilesToRemove)
+        alienSwarm.aliens.removeAll(aliensToRemove)
+        projectilesToRemove.clear()
+        aliensToRemove.clear()
     }
+
     fun fireProjectile() {
         val projectile = spaceship.shoot()
         projectiles.add(projectile)
     }
+
     fun update() {
         val currentTime = System.currentTimeMillis()
         if (currentTime - shootTimer >= 500) {
             fireProjectile()
             shootTimer = currentTime
         }
-        alienSwarm.update() // Mettez à jour les aliens
+        alienSwarm.update()
         spaceship.update()
         projectiles.forEach { it.update() }
-        projectiles.removeAll { it.y < 0 }
+        projectiles.removeAll { it.y < 0 || it.used }
 
+        var projectileIndex = 0
+        while (projectileIndex < projectiles.size) {
+            val projectile = projectiles[projectileIndex]
+            if (!projectile.used) {
+                var alienIndex = 0
+                while (alienIndex < alienSwarm.aliens.size) {
+                    val alien = alienSwarm.aliens[alienIndex]
+                    if (alien.isCollidingWith(projectile)) {
+                        projectile.used = true
+                        alien.lives -= 1
+                        if (alien.lives <= 0) {
+                            alienSwarm.aliens.removeAt(alienIndex)
+                            alienSwarm.createNewAlien() // Ajouter un nouvel alien à une position aléatoire
+                            aliensKilled++
+                        }
+                        break
+                    }
+                    alienIndex++
+                }
+            }
+            projectileIndex++
+        }
+
+
+        projectiles.removeAll { it.used }
     }
 
     fun pause() {

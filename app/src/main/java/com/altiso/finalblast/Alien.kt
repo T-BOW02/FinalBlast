@@ -10,9 +10,10 @@ class Alien(context: Context) : GameObject(context) {
     private var moveDirection = Random.nextInt(200, 600) // Pixels à parcourir dans une direction avant de changer de direction
     private var movedPixels = 0
     private var delayCounter = 0
+    var lives = 3
     private val delayBetweenDirectionChanges = 30
     init {
-        setBitmap(R.drawable.alien, 60, 40) // Remplacez R.drawable.alien par l'ID de la ressource de votre alien
+        setBitmap(R.drawable.alien2, 60, 40) // Remplacez R.drawable.alien par l'ID de la ressource de votre alien
     }
 
     fun isCollidingWith(projectile: Projectile): Boolean {
@@ -36,7 +37,6 @@ class Alien(context: Context) : GameObject(context) {
             movedPixels += (moveSpeed * direction).toInt()
         }
     }
-
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
