@@ -21,7 +21,7 @@ class Projectile(context: Context, startX: Float, startY: Float, screenWidth: In
     }
 
     override fun update() {
-        y -= Companion.moveSpeed
+        y -= moveSpeed
     }
 
     override fun draw(canvas: Canvas) {

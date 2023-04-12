@@ -1,3 +1,7 @@
+package com.altiso.finalblast
+
+import Alien
+import Projectile
 import android.content.Context
 import android.graphics.Canvas
 import kotlin.random.Random

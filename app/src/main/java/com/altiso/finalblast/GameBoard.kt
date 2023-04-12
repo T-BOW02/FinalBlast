@@ -1,7 +1,5 @@
 package com.altiso.finalblast
-import android.graphics.Color
 import Alien
-import AlienSwarm
 import GameThread
 import Projectile
 import Spaceship
@@ -28,7 +26,6 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
     private val projectiles = mutableListOf<Projectile>()
     private lateinit var spaceship: Spaceship
     private lateinit var alienSwarm: AlienSwarm
-    private var aliensKilled = 0
     private var shootTimer = 0L
     private val alienKilledObservers = mutableListOf<AlienKilledObserver>()
     init {
@@ -66,7 +63,7 @@ class GameBoard(context: Context) : SurfaceView(context), SurfaceHolder.Callback
         backgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, width, height, true)
         alienSwarm = AlienSwarm(context, screenWidth = width, screenHeight = height)
 
-        spaceship = Spaceship(0.0, 0.0, width, height, context)
+        spaceship = Spaceship(width, height, context)
         spaceship.y = screenHeight * 0.75f
         spaceship.x = screenWidth * 0.4f
 

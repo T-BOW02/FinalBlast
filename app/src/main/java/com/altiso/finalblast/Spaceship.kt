@@ -2,7 +2,7 @@ import android.content.Context
 import android.graphics.Canvas
 import com.altiso.finalblast.R
 
-class Spaceship(x: Double, y: Double, private val screenWidth: Int, private val screenHeight: Int, context: Context) : GameObject(context) {
+class Spaceship(private val screenWidth: Int, private val screenHeight: Int, context: Context) : GameObject(context) {
     private val moveSpeed = 25f
 
 
