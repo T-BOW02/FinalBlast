@@ -1,8 +1,9 @@
 import android.content.Context
 import android.graphics.Canvas
 import com.altiso.finalblast.R
+import com.altiso.finalblast.tirer
 
-class Spaceship(private val screenWidth: Int, private val screenHeight: Int, context: Context) : GameObject(context) {
+class Spaceship(private val screenWidth: Int, private val screenHeight: Int, context: Context) : GameObject(context), tirer {
     private val moveSpeed = 25f
 
 
@@ -25,7 +26,7 @@ class Spaceship(private val screenWidth: Int, private val screenHeight: Int, con
         }
     }
 
-    fun shoot(): Projectile {
+    override fun shoot(): Projectile {
         return Projectile(context,x + width / 2, y, screenWidth, screenHeight)
     }
 
